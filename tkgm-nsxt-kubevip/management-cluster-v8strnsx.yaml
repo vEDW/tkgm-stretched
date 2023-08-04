@@ -1,0 +1,49 @@
+#! ---------------------------------------------------------------------
+#! vSphere non proxy env configs
+#! ---------------------------------------------------------------------
+CLUSTER_CIDR: 100.96.0.0/11
+CLUSTER_NAME: v8strnsx-mc
+CLUSTER_PLAN: prod
+ENABLE_CEIP_PARTICIPATION: false
+ENABLE_MHC: 'true'
+MHC_UNKNOWN_STATUS_TIMEOUT: 5m
+MHC_FALSE_STATUS_TIMEOUT: 12m
+INFRASTRUCTURE_PROVIDER: vsphere
+SERVICE_CIDR: 100.64.0.0/13
+DEPLOY_TKG_ON_VSPHERE7: 'true'
+VSPHERE_DATACENTER: /cPod-V8STRNSX-MGMT
+VSPHERE_DATASTORE: /cPod-V8STRNSX-MGMT/datastore/mgmt-vsanDatastore
+VSPHERE_FOLDER: /cPod-V8STRNSX-MGMT/vm/tkg-mgmt
+VSPHERE_NETWORK: /cPod-V8STRNSX-MGMT/network/mgmt-tkgm-mc
+VSPHERE_PASSWORD: xxx 
+VSPHERE_RESOURCE_POOL: /cPod-V8STRNSX-MGMT/host/V8STRNSX-MGMT/Resources/tkg-mgmt 
+VSPHERE_SERVER: vcsa.cpod-v8strnsx-mgmt.az-muc.cloud-garage.net 
+VSPHERE_SSH_AUTHORIZED_KEY: ssh-rsa xxx root@sivt.cpod-v8strnsx-mgmt.az-muc.cloud-garage.net 
+
+VSPHERE_USERNAME: administrator@cpod-v8strnsx-mgmt.az-muc.cloud-garage.net
+VSPHERE_INSECURE: 'true'
+ENABLE_AUDIT_LOGGING: 'true'
+OS_ARCH: amd64
+OS_NAME: photon
+OS_VERSION: 3
+
+VSPHERE_CONTROL_PLANE_ENDPOINT: "10.16.9.5"
+
+WORKER_SIZE: small
+CONTROLPLANE_SIZE: small
+
+#VSPHERE_STORAGE_POLICY_ID: 'Management Storage Policy - Stretched'
+
+IDENTITY_MANAGEMENT_TYPE: none
+
+#! ---------------------------------------------------------------------
+#! vSphere proxy env configs
+#! ---------------------------------------------------------------------
+
+TKG_HTTP_PROXY_ENABLED: 'false'
+
+
+#! ---------------------------------------------------------------------
+#! vSphere airgapped env configs
+#! ---------------------------------------------------------------------
+

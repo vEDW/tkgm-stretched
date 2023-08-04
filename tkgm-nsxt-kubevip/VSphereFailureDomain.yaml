@@ -1,0 +1,44 @@
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereFailureDomain
+metadata:
+ name: dc01
+spec:
+ region:
+   name: stretched-cluster
+   type: ComputeCluster
+   tagCategory: k8s-region
+ zone:
+   name: dc01
+   type: HostGroup
+   tagCategory: k8s-zone
+ topology:
+   datacenter: cPod-V8STRNSX-Stretched
+   computeCluster: TKGM-STRETCHED
+   hosts:
+     vmGroupName: vm-dc01
+     hostGroupName: hg-dc01
+   datastore: vsanDatastore
+   networks:
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereFailureDomain
+metadata:
+ name: dc02
+spec:
+ region:
+   name: stretched-cluster
+   type: ComputeCluster
+   tagCategory: k8s-region
+ zone:
+   name: dc02
+   type: HostGroup
+   tagCategory: k8s-zone
+ topology:
+   datacenter: cPod-V8STRNSX-Stretched
+   computeCluster: TKGM-STRETCHED
+   hosts:
+     vmGroupName: vm-dc02
+     hostGroupName: hg-dc02
+   datastore: vsanDatastore
+   networks:

@@ -1,0 +1,68 @@
+#! ---------------------------------------------------------------------
+#! non proxy env configs
+#! ---------------------------------------------------------------------
+CLUSTER_CIDR: 100.96.0.0/11
+CLUSTER_NAME: v8strnsx-cl03-zoned
+CLUSTER_PLAN: dev
+TKG_IP_FAMILY: ipv4
+ENABLE_CEIP_PARTICIPATION: false
+ENABLE_MHC: 'true'
+MHC_UNKNOWN_STATUS_TIMEOUT: 15m
+MHC_FALSE_STATUS_TIMEOUT: 30m
+
+IDENTITY_MANAGEMENT_TYPE: none
+
+INFRASTRUCTURE_PROVIDER: vsphere
+SERVICE_CIDR: 100.64.0.0/13
+DEPLOY_TKG_ON_VSPHERE7: 'true'
+VSPHERE_DATACENTER: /cPod-V8STRNSX-Stretched
+VSPHERE_DATASTORE: /cPod-V8STRNSX-Stretched/datastore/vsanDatastore
+VSPHERE_FOLDER: /cPod-V8STRNSX-Stretched/vm/TKG-Clusters
+VSPHERE_NETWORK: /cPod-V8STRNSX-Stretched/network/stretched-ls-tkg-cl01 
+VSPHERE_PASSWORD: xxx
+VSPHERE_RESOURCE_POOL: /cPod-V8STRNSX-Stretched/host/TKGM-STRETCHED/Resources/TKG-CLUSTERS-RP01
+VSPHERE_SERVER: vcsa.cpod-v8strnsx-mgmt.az-muc.cloud-garage.net
+VSPHERE_SSH_AUTHORIZED_KEY: ssh-rsa xxx
+
+VSPHERE_USERNAME: administrator@cpod-v8strnsx-mgmt.az-muc.cloud-garage.net
+VSPHERE_INSECURE: 'true'
+
+ENABLE_AUDIT_LOGGING: 'false'
+
+ENABLE_DEFAULT_STORAGE_CLASS: 'true'
+ENABLE_AUTOSCALER: false
+OS_ARCH: amd64
+OS_NAME: photon
+OS_VERSION: 3
+
+WORKER_SIZE: small
+CONTROLPLANE_SIZE: small
+
+VSPHERE_CONTROL_PLANE_ENDPOINT: "10.22.9.203"
+
+KUBEVIP_LOADBALANCER_ENABLE: 'true'
+KUBEVIP_LOADBALANCER_IP_RANGES: '10.22.9.101-10.22.9.200'
+
+ETCD_EXTRA_ARGS: "heartbeat-interval=20;election-timeout=400"
+
+VSPHERE_REGION: k8s-region
+VSPHERE_ZONE: k8s-zone
+
+VSPHERE_AZ_CONTROL_PLANE_MATCHING_LABELS: "region=stretched-cluster" 
+VSPHERE_AZ_0: dc01
+VSPHERE_AZ_1: dc02
+
+VSPHERE_STORAGE_POLICY_ID: 'tanzu-stretched-policy'
+
+#! ---------------------------------------------------------------------
+#! proxy env configs
+#! ---------------------------------------------------------------------
+
+
+
+TKG_HTTP_PROXY_ENABLED: 'false'
+
+
+#! ---------------------------------------------------------------------
+#! airgapped env configs
+#! ---------------------------------------------------------------------

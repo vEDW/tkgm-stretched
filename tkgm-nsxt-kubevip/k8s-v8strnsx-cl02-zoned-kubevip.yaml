@@ -1,0 +1,215 @@
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: VSphereCPIConfig
+metadata:
+  name: v8strnsx-cl02-zoned
+  namespace: default
+spec:
+  vsphereCPI:
+    ipFamily: ipv4
+    mode: vsphereCPI
+    region: k8s-region
+    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    vmNetwork:
+      excludeExternalSubnetCidr: 10.22.9.201/32
+      excludeInternalSubnetCidr: 10.22.9.201/32
+    zone: k8s-zone
+---
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: v8strnsx-cl02-zoned
+  namespace: default
+spec:
+  vsphereCSI:
+    config:
+      datacenter: /cPod-V8STRNSX-Stretched
+      httpProxy: ""
+      httpsProxy: ""
+      insecureFlag: true
+      noProxy: ""
+      region: k8s-region
+      tlsThumbprint: ""
+      useTopologyCategories: false
+      zone: k8s-zone
+    mode: vsphereCSI
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: KubevipCPIConfig
+metadata:
+  name: v8strnsx-cl02-zoned
+  namespace: default
+spec:
+  loadbalancerIPRanges: 10.22.9.101-10.22.9.200
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.26.5---vmware.2-tkg.1-rc.3
+  name: v8strnsx-cl02-zoned
+  namespace: default
+spec:
+  additionalPackages:
+  - refName: metrics-server*
+  - refName: secretgen-controller*
+  - refName: pinniped*
+  - refName: tkg-storageclass*
+    valuesFrom:
+      inline:
+        VSPHERE_STORAGE_POLICY_ID: tanzu-stretched-policy
+        infraProvider: vsphere
+  - refName: kube-vip-cloud-provider*
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: KubevipCPIConfig
+        name: v8strnsx-cl02-zoned
+  cpi:
+    refName: vsphere-cpi*
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: VSphereCPIConfig
+        name: v8strnsx-cl02-zoned
+  csi:
+    refName: vsphere-csi*
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: VSphereCSIConfig
+        name: v8strnsx-cl02-zoned
+  kapp:
+    refName: kapp-controller*
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: v8strnsx-cl02-zoned
+  namespace: default
+stringData:
+  password: xxx
+  username: administrator@cpod-v8strnsx-mgmt.az-muc.cloud-garage.net
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: photon,3,amd64
+    tkg.tanzu.vmware.com/cluster-controlplane-endpoint: 10.22.9.201
+    tkg/plan: prod
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: v8strnsx-cl02-zoned
+  name: v8strnsx-cl02-zoned
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 100.96.0.0/11
+    services:
+      cidrBlocks:
+      - 100.64.0.0/13
+  topology:
+    class: tkg-vsphere-default-v1.1.0
+    controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+      replicas: 3
+    variables:
+    - name: cni
+      value: antrea
+    - name: controlPlaneCertificateRotation
+      value:
+        activate: true
+        daysBefore: 90
+    - name: auditLogging
+      value:
+        enabled: false
+    - name: podSecurityStandard
+      value:
+        audit: restricted
+        deactivated: false
+        warn: restricted
+    - name: apiServerEndpoint
+      value: 10.22.9.201
+    - name: aviAPIServerHAProvider
+      value: false
+    - name: vcenter
+      value:
+        cloneMode: fullClone
+        datacenter: /cPod-V8STRNSX-Stretched
+        datastore: /cPod-V8STRNSX-Stretched/datastore/vsanDatastore
+        folder: /cPod-V8STRNSX-Stretched/vm/TKG-Clusters
+        network: /infra/segments/stretched-ls-tkg-cl01
+        resourcePool: /cPod-V8STRNSX-Stretched/host/TKGM-STRETCHED/Resources/TKG-CLUSTERS-RP01
+        server: vcsa.cpod-v8strnsx-mgmt.az-muc.cloud-garage.net
+        storagePolicyID: tanzu-stretched-policy
+        tlsThumbprint: ""
+    - name: user
+      value:
+        sshAuthorizedKeys:
+        - ssh-rsa xxx
+    - name: controlPlane
+      value:
+        machine:
+          diskGiB: 20
+          memoryMiB: 4096
+          numCPUs: 2
+    - name: worker
+      value:
+        machine:
+          diskGiB: 20
+          memoryMiB: 4096
+          numCPUs: 2
+    - name: kubeVipLoadBalancerProvider
+      value: true
+    - name: controlPlaneZoneMatchingLabels
+      value:
+        region: stretched-cluster
+    - name: security
+      value:
+        fileIntegrityMonitoring:
+          enabled: false
+        imagePolicy:
+          pullAlways: false
+          webhook:
+            enabled: false
+            spec:
+              allowTTL: 50
+              defaultAllow: true
+              denyTTL: 60
+              retryBackoff: 500
+        kubeletOptions:
+          eventQPS: 50
+          streamConnectionIdleTimeout: 4h0m0s
+        systemCryptoPolicy: default
+    version: v1.26.5+vmware.2-tkg.1-rc.3
+    workers:
+      machineDeployments:
+      - class: tkg-worker
+        failureDomain: dc01
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+        name: md-0
+        replicas: 2
+        strategy:
+          type: RollingUpdate
+      - class: tkg-worker
+        failureDomain: dc02
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+        name: md-1
+        replicas: 1
+        strategy:
+          type: RollingUpdate
+      - class: tkg-worker
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+        name: md-2
+        replicas: 1
+        strategy:
+          type: RollingUpdate

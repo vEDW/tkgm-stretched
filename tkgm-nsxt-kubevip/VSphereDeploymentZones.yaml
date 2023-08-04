@@ -1,0 +1,26 @@
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereDeploymentZone
+metadata:
+ name: dc01
+ labels:
+   region: stretched-cluster
+   az: dc01
+spec:
+ server: vcsa.cpod-v8strnsx-mgmt.az-muc.cloud-garage.net 
+ failureDomain: dc01
+ placementConstraint:
+   resourcePool: TKG-CLUSTERS-RP01
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereDeploymentZone
+metadata:
+ name: dc02
+ labels:
+   region: stretched-cluster
+   az: dc02
+spec:
+ server: vcsa.cpod-v8strnsx-mgmt.az-muc.cloud-garage.net 
+ failureDomain: dc02
+ placementConstraint:
+   resourcePool: TKG-CLUSTERS-RP01
