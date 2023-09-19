@@ -165,6 +165,10 @@ echo "Tags"
 govc tags.ls |grep k8s
 
 echo
+echo "Host and vm groups"
+govc cluster.group.ls -dc=$GOVC_DC
+
+echo
 echo "Affinity Rules"
 govc cluster.rule.ls -dc=$GOVC_DC
 
