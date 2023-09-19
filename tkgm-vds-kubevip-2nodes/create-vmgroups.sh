@@ -80,33 +80,60 @@ get_zone01_domain(){
     fi
 }
 
+get_zone02_domain(){
+    #get cluster hosts
+    HOSTSLIST=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev )
+    if [ $? -eq 0 ]
+    then
+        echo "${HOSTSLIST}"
+        echo
+        echo "Select desired domain for zone01 or CTRL-C to quit"
+        echo
+        DOMAINLIST=$( echo "${HOSTSLIST}" |  cut -d "." -f2)
+
+        select DOMAIN in $DOMAINLIST; do 
+            echo "Domain selected for Zone01 : $DOMAIN"
+            ZONE02=$DOMAIN
+            break
+        done
+    else
+        echo "problem getting hosts list via govc" >&2
+        exit 1
+    fi
+}
+
 
 get_datacenter
 get_cluster
 get_zone01_domain
+get_zone02_domain
 
-exit
+
+
 
 # create region tags
 govc tags.category.create -t ClusterComputeResource k8s-region
-govc tags.create -c k8s-region ${REGION}
+govc tags.create -c k8s-region -dc="${GOVC_DC}" ${REGION}
 
 # create zone tag category
 govc tags.category.create -t HostSystem k8s-zone
-govc tags.create -c k8s-zone ${ZONE01}
-govc tags.create -c k8s-zone ${ZONE02}
+govc tags.create -c k8s-zone -dc="${GOVC_DC}" ${ZONE01}
+govc tags.create -c k8s-zone -dc="${GOVC_DC}" ${ZONE02}
 
 # attach tag region to cluster
-govc tags.attach -c k8s-region ${REGION} ${CLUSTER}
+govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} ${CLUSTER}
 
 # attach zome tag to hosts
 
-# Zone01
-govc tags.attach -c k8s-zone ${ZONE01} esx01.${DOMAIN_DC01}
-govc tags.attach -c k8s-zone ${ZONE01} esx02.${DOMAIN_DC01}
-govc tags.attach -c k8s-zone ${ZONE01} esx03.${DOMAIN_DC01}
-govc tags.attach -c k8s-zone ${ZONE01} esx04.${DOMAIN_DC01}
+HOSTSZONE01=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01)
 
+for HOST in $HOSTSZONE01; do
+    # Zone01
+    echo "tagging $HOST with ${ZONE01} "
+    govc tags.attach -c k8s-zone  -dc="${GOVC_DC}" ${ZONE01} ${HOST}
+done
+
+exit
 # ZONE02
 govc tags.attach -c k8s-zone ${ZONE02} esx06.${DOMAIN_DC02}
 govc tags.attach -c k8s-zone ${ZONE02} esx05.${DOMAIN_DC02}
