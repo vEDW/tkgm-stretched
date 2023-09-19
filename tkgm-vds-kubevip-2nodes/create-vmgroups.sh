@@ -8,17 +8,17 @@ if [[ ! -e govc.env ]]; then
 fi
 source ./govc.env
 
-DOMAIN_DC01=cpod-v8strnsx-dc01.az-muc.cloud-garage.net
-DOMAIN_DC02=cpod-v8strnsx-dc02.az-muc.cloud-garage.net
-DATACENTER=/cPod-V8STRNSX-Stretched
-CLUSTER=$(govc ls ${DATACENTER}/host)
-REGION="stretched-cluster"
-ZONE01="dc01"
-ZONE02="dc02"
-HGZONE01="hg-${ZONE01}"
-HGZONE02="hg-${ZONE02}"
-VMGROUP01="vm-${ZONE01}"
-VMGROUP02="vm-${ZONE02}"
+#DOMAIN_DC01=cpod-v8strnsx-dc01.az-muc.cloud-garage.net
+#DOMAIN_DC02=cpod-v8strnsx-dc02.az-muc.cloud-garage.net
+#DATACENTER=/cPod-V8STRNSX-Stretched
+#CLUSTER=$(govc ls ${DATACENTER}/host)
+#REGION="stretched-cluster"
+#ZONE01="dc01"
+#ZONE02="dc02"
+#HGZONE01="hg-${ZONE01}"
+#HGZONE02="hg-${ZONE02}"
+#VMGROUP01="vm-${ZONE01}"
+#VMGROUP02="vm-${ZONE02}"
 
 #get datacenter
 DATACENTERSLIST=$(govc find / -type d)
@@ -94,6 +94,7 @@ else
     exit 1
 fi
 
+REGION=${GOVC_DC}-${GOVC_CLUSTER}
 
 # create region tags
 govc tags.category.create -t ClusterComputeResource k8s-region
