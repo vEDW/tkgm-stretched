@@ -1,12 +1,12 @@
 #!/bin/bash
-source ./govc.env
+#source ./govc.env
 
 # source govc.env
 if [[ ! -e govc.env ]]; then
     echo "govc.env file not found. please create one by cloning example and filling values as needed."
     exit 1
 fi
-source govc.env
+source ./govc.env
 
 DOMAIN_DC01=cpod-v8strnsx-dc01.az-muc.cloud-garage.net
 DOMAIN_DC02=cpod-v8strnsx-dc02.az-muc.cloud-garage.net
