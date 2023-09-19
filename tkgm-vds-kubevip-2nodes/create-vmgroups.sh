@@ -164,3 +164,7 @@ echo
 echo "Tags"
 govc tags.ls |grep k8s
 
+echo
+echo "Affinity Rules"
+govc cluster.rule.ls -dc=$GOVC_DC
+
