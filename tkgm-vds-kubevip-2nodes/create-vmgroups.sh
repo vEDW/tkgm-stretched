@@ -31,7 +31,7 @@ get_datacenter(){
         select DATACENTER in $DATACENTERSLIST; do 
             echo "Datacenter selected :  $DATACENTER"
             GOVC_DC=$DATACENTER
-            exit
+            break
         done
     else
         echo "problem getting datacenters list via govc" >&2
@@ -50,7 +50,7 @@ get_cluster() {
         select CLUSTER in $CLUSTERSLIST; do 
             echo "Cluster selected :  $CLUSTER"
             GOVC_CLUSTER=$CLUSTER
-            exit
+            break
         done
     else
         echo "problem getting clusters list via govc" >&2
@@ -72,7 +72,7 @@ get_zone01_domain(){
         select DOMAIN in $DOMAINLIST; do 
             echo "Domain selected for Zone01 : $DOMAIN"
             ZONE01=$DOMAIN
-            exit
+            break
         done
     else
         echo "problem getting hosts list via govc" >&2
