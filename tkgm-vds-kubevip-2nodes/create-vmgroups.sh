@@ -31,7 +31,7 @@ get_datacenter(){
         select DATACENTER in $DATACENTERSLIST; do 
             echo "Datacenter selected :  $DATACENTER"
             GOVC_DC=$DATACENTER
-            #exit
+            exit
         done
     else
         echo "problem getting datacenters list via govc" >&2
