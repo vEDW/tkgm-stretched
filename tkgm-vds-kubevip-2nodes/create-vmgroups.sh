@@ -137,18 +137,18 @@ VMGROUP02="vm-${ZONE02}"
 
 # create host groups
 echo "create host groups zone01"
-govc cluster.group.create  -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE01} -host
+govc cluster.group.create -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE01} -host
 HOSTSZONE01=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01 | rev | cut -d "/" -f1 | rev )
-govc cluster.group.change -cluster=${CLUSTER} -name=${HGZONE01} $HOSTSZONE01 
+govc cluster.group.change -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE01} $HOSTSZONE01 
 
 echo "create host groups zone02"
-govc cluster.group.create -cluster=${CLUSTER} -name=${HGZONE02} -host
+govc cluster.group.create -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE02} -host
 HOSTSZONE02=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02 | rev | cut -d "/" -f1 | rev )
-govc cluster.group.change -cluster=${CLUSTER} -name=${HGZONE02} $HOSTSZONE02 
+govc cluster.group.change -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE02} $HOSTSZONE02 
 
 echo "create vm groups"
-govc cluster.group.create -cluster=${CLUSTER} -name=${VMGROUP01} -vm
-govc cluster.group.create -cluster=${CLUSTER} -name=${VMGROUP02} -vm
+govc cluster.group.create -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${VMGROUP01} -vm
+govc cluster.group.create -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${VMGROUP02} -vm
 
 
 # create vm group to host group affinity "should" rules
