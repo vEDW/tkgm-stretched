@@ -20,105 +20,89 @@ HGZONE02="hg-${ZONE02}"
 VMGROUP01="vm-${ZONE01}"
 VMGROUP02="vm-${ZONE02}"
 
-get_datacenter(){
-    #get datacenter
-    DATACENTERSLIST=$(govc find / -type d)
-    if [ $? -eq 0 ]
-    then
-        echo
-        echo "Select desired datacenter or CTRL-C to quit"
-        echo
-        select DATACENTER in $DATACENTERSLIST; do 
-            echo "Datacenter selected :  $DATACENTER"
-            GOVC_DC=$DATACENTER
-            break
-        done
-    else
-        echo "problem getting datacenters list via govc" >&2
-        exit 1
-    fi
-}
+#get datacenter
+DATACENTERSLIST=$(govc find / -type d)
+if [ $? -eq 0 ]
+then
+    echo
+    echo "Select desired datacenter or CTRL-C to quit"
+    echo
+    select DATACENTER in $DATACENTERSLIST; do 
+        echo "Datacenter selected :  $DATACENTER"
+        GOVC_DC=$DATACENTER
+        break
+    done
+else
+    echo "problem getting datacenters list via govc" >&2
+    exit 1
+fi
 
-get_cluster() {
-    #get cluster
-    CLUSTERSLIST=$(govc find -dc="${GOVC_DC}" -type ClusterComputeResource | rev | cut -d "/" -f1 | rev )
-    if [ $? -eq 0 ]
-    then
-        echo
-        echo "Select desired cluster or CTRL-C to quit"
-        echo
-        select CLUSTER in $CLUSTERSLIST; do 
-            echo "Cluster selected :  $CLUSTER"
-            GOVC_CLUSTER=$CLUSTER
-            break
-        done
-    else
-        echo "problem getting clusters list via govc" >&2
-        exit 1
-    fi
-}
+#get cluster
+CLUSTERSLIST=$(govc find -dc="${GOVC_DC}" -type ClusterComputeResource | rev | cut -d "/" -f1 | rev )
+if [ $? -eq 0 ]
+then
+    echo
+    echo "Select desired cluster or CTRL-C to quit"
+    echo
+    select CLUSTER in $CLUSTERSLIST; do 
+        echo "Cluster selected :  $CLUSTER"
+        GOVC_CLUSTER=$CLUSTER
+        break
+    done
+else
+    echo "problem getting clusters list via govc" >&2
+    exit 1
+fi
 
-get_zone01_domain(){
-    #get cluster hosts
-    HOSTSLIST=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev )
-    if [ $? -eq 0 ]
-    then
-        echo "${HOSTSLIST}"
-        echo
-        echo "Select desired domain for zone01 or CTRL-C to quit"
-        echo
-        DOMAINLIST=$( echo "${HOSTSLIST}" |  cut -d "." -f2)
+#get zone01 domain
+HOSTSLIST=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev )
+if [ $? -eq 0 ]
+then
+    echo "${HOSTSLIST}"
+    echo
+    echo "Select desired domain for zone01 or CTRL-C to quit"
+    echo
+    DOMAINLIST=$( echo "${HOSTSLIST}" |  cut -d "." -f2)
 
-        select DOMAIN in $DOMAINLIST; do 
-            echo "Domain selected for Zone01 : $DOMAIN"
-            ZONE01=$DOMAIN
-            break
-        done
-    else
-        echo "problem getting hosts list via govc" >&2
-        exit 1
-    fi
-}
+    select DOMAIN in $DOMAINLIST; do 
+        echo "Domain selected for Zone01 : $DOMAIN"
+        ZONE01=$DOMAIN
+        break
+    done
+else
+    echo "problem getting hosts list via govc" >&2
+    exit 1
+fi
 
-get_zone02_domain(){
-    #get cluster hosts
-    HOSTSLIST=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev )
-    if [ $? -eq 0 ]
-    then
-        echo "${HOSTSLIST}"
-        echo
-        echo "Select desired domain for zone01 or CTRL-C to quit"
-        echo
-        DOMAINLIST=$( echo "${HOSTSLIST}" |  cut -d "." -f2)
+#get zone02 domain
+HOSTSLIST=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev )
+if [ $? -eq 0 ]
+then
+    echo "${HOSTSLIST}"
+    echo
+    echo "Select desired domain for zone02 or CTRL-C to quit"
+    echo
+    DOMAINLIST=$( echo "${HOSTSLIST}" |  cut -d "." -f2)
 
-        select DOMAIN in $DOMAINLIST; do 
-            echo "Domain selected for Zone01 : $DOMAIN"
-            ZONE02=$DOMAIN
-            break
-        done
-    else
-        echo "problem getting hosts list via govc" >&2
-        exit 1
-    fi
-}
-
-
-get_datacenter
-get_cluster
-get_zone01_domain
-get_zone02_domain
-
-
+    select DOMAIN in $DOMAINLIST; do 
+        echo "Domain selected for Zone01 : $DOMAIN"
+        ZONE02=$DOMAIN
+        break
+    done
+else
+    echo "problem getting hosts list via govc" >&2
+    exit 1
+fi
 
 
 # create region tags
 govc tags.category.create -t ClusterComputeResource k8s-region
-govc tags.create -c k8s-region -dc="${GOVC_DC}" ${REGION}
+govc tags.create -c k8s-region ${REGION}
 
 # create zone tag category
 govc tags.category.create -t HostSystem k8s-zone
-govc tags.create -c k8s-zone -dc="${GOVC_DC}" ${ZONE01}
-govc tags.create -c k8s-zone -dc="${GOVC_DC}" ${ZONE02}
+govc tags.create -c k8s-zone ${ZONE01}
+govc tags.create -c k8s-zone ${ZONE02}
 
 # attach tag region to cluster
 govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} ${CLUSTER}
