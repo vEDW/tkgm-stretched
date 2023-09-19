@@ -96,6 +96,8 @@ fi
 
 REGION=${GOVC_DC}-${GOVC_CLUSTER}
 
+echo "create tags"
+
 # create region tags
 govc tags.category.create -t ClusterComputeResource k8s-region
 govc tags.create -c k8s-region ${REGION}
@@ -106,41 +108,53 @@ govc tags.create -c k8s-zone ${ZONE01}
 govc tags.create -c k8s-zone ${ZONE02}
 
 # attach tag region to cluster
-govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} ${CLUSTER}
+govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} ${GOVC_DC}/host/${CLUSTER}
 
+echo "attach tags to zone01 hosts"
 # attach zome tag to hosts
-
+#Zone01
 HOSTSZONE01=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01)
-
 for HOST in $HOSTSZONE01; do
     # Zone01
     echo "tagging $HOST with ${ZONE01} "
     govc tags.attach -c k8s-zone  -dc="${GOVC_DC}" ${ZONE01} ${HOST}
 done
 
-exit
-# ZONE02
-govc tags.attach -c k8s-zone ${ZONE02} esx06.${DOMAIN_DC02}
-govc tags.attach -c k8s-zone ${ZONE02} esx05.${DOMAIN_DC02}
-govc tags.attach -c k8s-zone ${ZONE02} esx07.${DOMAIN_DC02}
-govc tags.attach -c k8s-zone ${ZONE02} esx08.${DOMAIN_DC02}
+echo "attach tags to zone02 hosts"
+#Zone02
+HOSTSZONE02=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02)
+for HOST in $HOSTSZONE02; do
+    # Zone01
+    echo "tagging $HOST with ${ZONE02} "
+    govc tags.attach -c k8s-zone  -dc="${GOVC_DC}" ${ZONE02} ${HOST}
+done
+
+HGZONE01="hg-${ZONE01}"
+HGZONE02="hg-${ZONE02}"
+VMGROUP01="vm-${ZONE01}"
+VMGROUP02="vm-${ZONE02}"
+
 
 # create host groups
-govc cluster.group.create -cluster=${CLUSTER} -name=${HGZONE01} -host
+echo "create host groups zone01"
+govc cluster.group.create  -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE01} -host
+HOSTSZONE01=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01 | rev | cut -d "/" -f1 | rev )
+govc cluster.group.change -cluster=${CLUSTER} -name=${HGZONE01} $HOSTSZONE01 
 
-govc cluster.group.change -cluster=${CLUSTER} -name=${HGZONE01} esx01.${DOMAIN_DC01} esx02.${DOMAIN_DC01} esx03.${DOMAIN_DC01} esx04.${DOMAIN_DC01}
-
+echo "create host groups zone02"
 govc cluster.group.create -cluster=${CLUSTER} -name=${HGZONE02} -host
-govc cluster.group.change -cluster=${CLUSTER} -name=${HGZONE02} esx05.${DOMAIN_DC02} esx06.${DOMAIN_DC02} esx07.${DOMAIN_DC02} esx08.${DOMAIN_DC02}
+HOSTSZONE02=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02 | rev | cut -d "/" -f1 | rev )
+govc cluster.group.change -cluster=${CLUSTER} -name=${HGZONE02} $HOSTSZONE02 
 
+echo "create vm groups"
 govc cluster.group.create -cluster=${CLUSTER} -name=${VMGROUP01} -vm
 govc cluster.group.create -cluster=${CLUSTER} -name=${VMGROUP02} -vm
 
 
 # create vm group to host group affinity "should" rules
-
-govc cluster.rule.create -enable -cluster=${CLUSTER} -name ${VMGROUP01}-${HGZONE01} -vm-host -vm-group ${VMGROUP01} -host-affine-group ${HGZONE01}
-govc cluster.rule.create -enable -cluster=${CLUSTER} -name ${VMGROUP02}-${HGZONE02} -vm-host -vm-group ${VMGROUP02} -host-affine-group ${HGZONE02}
+echo "create affinity rules"
+govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -name ${VMGROUP01}-${HGZONE01} -vm-host -vm-group ${VMGROUP01} -host-affine-group ${HGZONE01}
+govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -name ${VMGROUP02}-${HGZONE02} -vm-host -vm-group ${VMGROUP02} -host-affine-group ${HGZONE02}
 
 echo
 echo "Tags Categories"
