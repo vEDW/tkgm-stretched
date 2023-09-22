@@ -8,20 +8,8 @@ if [[ ! -e govc.env ]]; then
 fi
 source ./govc.env
 
-#DOMAIN_DC01=cpod-v8strnsx-dc01.az-muc.cloud-garage.net
-#DOMAIN_DC02=cpod-v8strnsx-dc02.az-muc.cloud-garage.net
-#DATACENTER=/cPod-V8STRNSX-Stretched
-#CLUSTER=$(govc ls ${DATACENTER}/host)
-#REGION="stretched-cluster"
-#ZONE01="dc01"
-#ZONE02="dc02"
-#HGZONE01="hg-${ZONE01}"
-#HGZONE02="hg-${ZONE02}"
-#VMGROUP01="vm-${ZONE01}"
-#VMGROUP02="vm-${ZONE02}"
-
 #get datacenter
-DATACENTERSLIST=$(govc find / -type d)
+DATACENTERSLIST=$(govc find / -type d  | cut -d "/" -f2)
 if [ $? -eq 0 ]
 then
     echo
@@ -94,18 +82,44 @@ else
     exit 1
 fi
 
+
+#get ResourcePool
+RESOURCEPOOLS=$(govc find -dc="${GOVC_DC}" -type ResourcePool . | rev | cut -d "/" -f1 | rev )
+if [ $? -eq 0 ]
+then
+    echo "${RESOURCEPOOLS}"
+    echo
+    echo "Select resourcepool where tkg cluster will run or CTRL-C to quit"
+    echo
+
+    select RP in $RESOURCEPOOLS; do 
+        echo "ResourcePool selected : $RP"
+        RESOURCEPOOL=$RP
+        break
+    done
+else
+    echo "problem getting hosts list via govc" >&2
+    exit 1
+fi
+
+
 REGION=${GOVC_DC}-${GOVC_CLUSTER}
 
 echo "create tags"
-
 # create region tags
-govc tags.category.create -t ClusterComputeResource k8s-region
-govc tags.create -c k8s-region ${REGION}
+TESTREGION=$(govc tags.category.ls |grep k8s-region)
+if [ "$TESTREGION" == "" ];then
+    govc tags.category.create -t ClusterComputeResource k8s-region
+    govc tags.create -c k8s-region ${REGION}
+fi
 
 # create zone tag category
-govc tags.category.create -t HostSystem k8s-zone
-govc tags.create -c k8s-zone ${ZONE01}
-govc tags.create -c k8s-zone ${ZONE02}
+TESTZONE=$(govc tags.category.ls |grep k8s-zone)
+if [ "$TESTZONE" == "" ];then
+    govc tags.category.create -t HostSystem k8s-zone
+    govc tags.create -c k8s-zone ${ZONE01}
+    govc tags.create -c k8s-zone ${ZONE02}
+fi
 
 # attach tag region to cluster
 govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} ${GOVC_DC}/host/${CLUSTER}
@@ -171,4 +185,56 @@ govc cluster.group.ls -dc=$GOVC_DC
 echo
 echo "Affinity Rules"
 govc cluster.rule.ls -dc=$GOVC_DC
+
+#Create Zones
+
+ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE01}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels = "'${GOVC_CLUSTER}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.az = "'${ZONE01}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${GOVC_URL}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE01}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.placementConstraint.resourcePool = "'${RESOURCEPOOL}'" ' -)
+echo "${ZONECRD}" > ${ZONE01}-vSphereDeploymentZones.yaml
+
+ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE02}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels = "'${GOVC_CLUSTER}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.az = "'${ZONE02}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${GOVC_URL}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE02}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.placementConstraint.resourcePool = "'${RESOURCEPOOL}'" ' -)
+echo "${ZONECRD}" > ${ZONE02}-vSphereDeploymentZones.yaml
+
+#Create FailureDomain
+
+REGIONDATASTORE=$(govc find -dc="${GOVC_DC}" -type Datastore | rev | cut -d "/" -f1 | rev |grep vsan)
+
+ZONECRD=$(cat ./vSphereFailureDomain.yaml)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE01}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.region.name = "'${REGION}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.zone.name = "'${ZONE01}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.datacenter = "'${GOVC_DC}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.computeCluster = "'${GOVC_CLUSTER}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.vmGroupName = "'${VMGROUP01}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.hostGroupName = "'${HGZONE01}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.datastore = "'${REGIONDATASTORE}'" ' -)
+
+echo "${ZONECRD}" > ${ZONE01}-vSphereFailureDomain.yaml
+
+ZONECRD=$(cat ./vSphereFailureDomain.yaml)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE02}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.region.name = "'${REGION}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.zone.name = "'${ZONE02}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.datacenter = "'${GOVC_DC}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.computeCluster = "'${GOVC_CLUSTER}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.vmGroupName = "'${VMGROUP02}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.hostGroupName = "'${HGZONE02}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.datastore = "'${REGIONDATASTORE}'" ' -)
+
+echo "${ZONECRD}" > ${ZONE02}-vSphereFailureDomain.yaml
+
+
+
+
 
