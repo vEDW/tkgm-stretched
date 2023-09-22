@@ -122,12 +122,12 @@ if [ "$TESTZONE" == "" ];then
 fi
 
 # attach tag region to cluster
-govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} ${GOVC_DC}/host/${CLUSTER}
+govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} /${GOVC_DC}/host/${CLUSTER}
 
 echo "attach tags to zone01 hosts"
 # attach zome tag to hosts
 #Zone01
-HOSTSZONE01=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01)
+HOSTSZONE01=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01)
 for HOST in $HOSTSZONE01; do
     # Zone01
     echo "tagging $HOST with ${ZONE01} "
@@ -136,7 +136,7 @@ done
 
 echo "attach tags to zone02 hosts"
 #Zone02
-HOSTSZONE02=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02)
+HOSTSZONE02=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02)
 for HOST in $HOSTSZONE02; do
     # Zone01
     echo "tagging $HOST with ${ZONE02} "
@@ -187,12 +187,13 @@ echo "Affinity Rules"
 govc cluster.rule.ls -dc=$GOVC_DC
 
 #Create Zones
+VCSA=$(echo "${GOVC_URL}"| rev | cut -d "/" -f1 | rev)
 
 ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE01}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels = "'${GOVC_CLUSTER}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.az = "'${ZONE01}'" ' -)
-ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${GOVC_URL}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${VCSA}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE01}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.placementConstraint.resourcePool = "'${RESOURCEPOOL}'" ' -)
 echo "${ZONECRD}" > ${ZONE01}-vSphereDeploymentZones.yaml
@@ -201,7 +202,7 @@ ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE02}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels = "'${GOVC_CLUSTER}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.az = "'${ZONE02}'" ' -)
-ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${GOVC_URL}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${VCSA}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE02}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.placementConstraint.resourcePool = "'${RESOURCEPOOL}'" ' -)
 echo "${ZONECRD}" > ${ZONE02}-vSphereDeploymentZones.yaml
