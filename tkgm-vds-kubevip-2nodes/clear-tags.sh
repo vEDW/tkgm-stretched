@@ -60,7 +60,7 @@ then
 
         ATTACHEDLIST=$(govc tags.attached.ls -dc=$GOVC_DC $TAG )
         for ATTACHED in $ATTACHEDLIST; do
-            govc tags.detach -dc=$GOVC_DC $ATTACHED
+            govc tags.detach -dc=$GOVC_DC $TAG $ATTACHED
         done
         govc tags.rm $TAG
     done
@@ -81,3 +81,19 @@ else
     echo "problem getting categories list via govc" >&2
     exit 1
 fi
+
+echo
+echo "Tags Categories"
+govc tags.category.ls |grep k8s
+
+echo
+echo "Tags"
+govc tags.ls |grep k8s
+
+echo
+echo "Host and vm groups"
+govc cluster.group.ls -dc=$GOVC_DC
+
+echo
+echo "Affinity Rules"
+govc cluster.rule.ls -dc=$GOVC_DC
