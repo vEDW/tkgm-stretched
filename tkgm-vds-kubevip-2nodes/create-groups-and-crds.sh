@@ -102,7 +102,6 @@ else
     exit 1
 fi
 
-
 REGION=${GOVC_DC}-${GOVC_CLUSTER}
 
 echo "create tags"
@@ -110,16 +109,16 @@ echo "create tags"
 TESTREGION=$(govc tags.category.ls |grep k8s-region)
 if [ "$TESTREGION" == "" ];then
     govc tags.category.create -t ClusterComputeResource k8s-region
-    govc tags.create -c k8s-region ${REGION}
 fi
+govc tags.create -c k8s-region ${REGION}
 
 # create zone tag category
 TESTZONE=$(govc tags.category.ls |grep k8s-zone)
 if [ "$TESTZONE" == "" ];then
     govc tags.category.create -t HostSystem k8s-zone
-    govc tags.create -c k8s-zone ${ZONE01}
-    govc tags.create -c k8s-zone ${ZONE02}
 fi
+govc tags.create -c k8s-zone ${ZONE01}
+govc tags.create -c k8s-zone ${ZONE02}
 
 # attach tag region to cluster
 govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} /${GOVC_DC}/host/${CLUSTER}
@@ -170,6 +169,8 @@ echo "create affinity rules"
 govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -name ${VMGROUP01}-${HGZONE01} -vm-host -vm-group ${VMGROUP01} -host-affine-group ${HGZONE01}
 govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -name ${VMGROUP02}-${HGZONE02} -vm-host -vm-group ${VMGROUP02} -host-affine-group ${HGZONE02}
 
+
+# check tags and rules
 echo
 echo "Tags Categories"
 govc tags.category.ls |grep k8s
