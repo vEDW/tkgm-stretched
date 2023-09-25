@@ -185,6 +185,25 @@ else
 fi
 unset IFS
 
+#get Templates
+echo
+TEMPLATES=$(govc find -type m / -config.template true)
+if [ $? -eq 0 ]
+then
+    echo
+    echo "Select template for tkg cluster or CTRL-C to quit"
+    echo
+
+    select TEMPL in $TEMPLATES; do 
+        echo "Template selected : $TEMPL"
+        VSPHERE_TEMPLATE=$TEMPL
+        break
+    done
+else
+    echo "problem getting templates list via govc" >&2
+    exit 1
+fi
+
 #REGION=${GOVC_DC}-${GOVC_CLUSTER}
 REGION=${GOVC_CLUSTER}
 
@@ -208,4 +227,6 @@ CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_USERNAME = "'${GOVC_USERNAM
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_PASSWORD = "'${VSPHERE_PASSWORD}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_CONTROL_PLANE_ENDPOINT = "'${VSPHERE_CONTROL_PLANE_ENDPOINT}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_STORAGE_POLICY_ID = "'"${VSPHERE_STORAGE_POLICY_ID}"'" ' -)
+CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_TEMPLATE = "'"${VSPHERE_TEMPLATE}"'" ' -)
+
 echo "${CLUSTERYAML}" > ${TKGCLUSTERNAME}.yaml
