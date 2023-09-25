@@ -120,7 +120,7 @@ unset IFS
 
 #get Portgroups
 echo
-NETWORKS=$(govc ls -dc="${GOVC_DC}" -type DistributedVirtualPortgroup network)
+NETWORKS=$(govc ls -dc="${GOVC_DC}" -t DistributedVirtualPortgroup network)
 if [ $? -eq 0 ]
 then
     #echo "${NETWORKS}"
