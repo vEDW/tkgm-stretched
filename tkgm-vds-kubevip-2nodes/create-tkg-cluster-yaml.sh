@@ -147,7 +147,7 @@ read KUBEVIP_LOADBALANCER_IP_RANGES
 
 
 #setting same password as for GOVC
-ENCPWD=$(echo "${GOVC_PASSWORD}"|base64)
+ENCPWD=$(echo -n "${GOVC_PASSWORD}"|base64)
 VSPHERE_PASSWORD="<encoded:${ENCPWD}>"
 
 #SSH PUB KEY
@@ -223,7 +223,7 @@ then
 
     select REGION in $REGIONS; do 
         echo "Region selected : $REGION"
-        VSPHERE_REGION="region=$REGION"
+        VSPHERE_AZ_CONTROL_PLANE_MATCHING_LABELS="region=$REGION"
         break
     done
 else
@@ -296,7 +296,7 @@ CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_CONTROL_PLANE_ENDPOINT = "'
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_STORAGE_POLICY_ID = "'"${VSPHERE_STORAGE_POLICY_ID}"'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_TEMPLATE = "'"${VSPHERE_TEMPLATE}"'" ' -)
 
-CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_REGION = "'"${VSPHERE_REGION}"'" ' -)
+CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_AZ_CONTROL_PLANE_MATCHING_LABELS = "'"${VSPHERE_AZ_CONTROL_PLANE_MATCHING_LABELS}"'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_AZ_0 = "'"${VSPHERE_AZ_0}"'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_AZ_1 = "'"${VSPHERE_AZ_1}"'" ' -)
 
