@@ -99,7 +99,7 @@ fi
 echo
 IFS='
 '
-FOLDERS=$(govc ls -dc="${GOVC_DC}" -t Folder -json=true vm |jq .elements[].Path)
+FOLDERS=$(govc ls -dc="${GOVC_DC}" -t Folder -json=true vm |jq -r .elements[].Path)
 if [ $? -eq 0 ]
 then
     #echo "${FOLDERS}"
@@ -107,7 +107,7 @@ then
     echo "Select folder where tkg cluster will run or CTRL-C to quit"
     echo
 
-    select FD in "${FOLDERS}"; do 
+    select FD in ${FOLDERS}; do 
         echo "Folder selected : $FD"
         VMFOLDER=$FD
         break
@@ -116,7 +116,7 @@ else
     echo "problem getting folders list via govc" >&2
     exit 1
 fi
-UNSET IFS
+unset IFS
 
 #get Portgroups
 echo
