@@ -186,7 +186,10 @@ echo
 echo "Affinity Rules"
 govc cluster.rule.ls -dc=$GOVC_DC
 
-#Create Zones
+#Create Zones CRDs
+
+[ ! -d ${CLUSTER} ] && mkdir ${CLUSTER}
+
 VCSA=$(echo "${GOVC_URL}"| rev | cut -d "/" -f1 | rev)
 
 ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
@@ -196,7 +199,7 @@ ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.az = "'${ZONE01}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${VCSA}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE01}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.placementConstraint.resourcePool = "'${RESOURCEPOOL}'" ' -)
-echo "${ZONECRD}" > ${ZONE01}-vSphereDeploymentZones.yaml
+echo "${ZONECRD}" > ${CLUSTER}/${ZONE01}-vSphereDeploymentZones.yaml
 
 ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE02}'" ' -)
@@ -205,7 +208,7 @@ ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.az = "'${ZONE02}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${VCSA}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE02}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.placementConstraint.resourcePool = "'${RESOURCEPOOL}'" ' -)
-echo "${ZONECRD}" > ${ZONE02}-vSphereDeploymentZones.yaml
+echo "${ZONECRD}" > ${CLUSTER}/${ZONE02}-vSphereDeploymentZones.yaml
 
 #Create FailureDomain
 
@@ -221,7 +224,7 @@ ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.vmGroupName = "'${VMGRO
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.hostGroupName = "'${HGZONE01}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.datastore = "'${REGIONDATASTORE}'" ' -)
 
-echo "${ZONECRD}" > ${ZONE01}-vSphereFailureDomain.yaml
+echo "${ZONECRD}" > ${CLUSTER}/${ZONE01}-vSphereFailureDomain.yaml
 
 ZONECRD=$(cat ./vSphereFailureDomain.yaml)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE02}'" ' -)
@@ -233,7 +236,7 @@ ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.vmGroupName = "'${VMGRO
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.hosts.hostGroupName = "'${HGZONE02}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.topology.datastore = "'${REGIONDATASTORE}'" ' -)
 
-echo "${ZONECRD}" > ${ZONE02}-vSphereFailureDomain.yaml
+echo "${ZONECRD}" > ${CLUSTER}/${ZONE02}-vSphereFailureDomain.yaml
 
 
 
