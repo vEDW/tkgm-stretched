@@ -43,7 +43,7 @@ else
 fi
 
 #get zone01 domain
-HOSTSLIST=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev )
+HOSTSLIST=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev | sort)
 if [ $? -eq 0 ]
 then
     echo "${HOSTSLIST}"
@@ -63,7 +63,7 @@ else
 fi
 
 #get zone02 domain
-HOSTSLIST=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev )
+HOSTSLIST=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h | rev | cut -d "/" -f1 | rev | sort)
 if [ $? -eq 0 ]
 then
     echo "${HOSTSLIST}"
