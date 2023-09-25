@@ -9,7 +9,7 @@ fi
 source ./govc.env
 
 #get datacenter
-DATACENTERSLIST=$(govc find / -type d  | cut -d "/" -f2)
+DATACENTERSLIST=$(govc find / -type d  | cut -d "/" -f2 |sort)
 if [ $? -eq 0 ]
 then
     echo

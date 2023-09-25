@@ -102,8 +102,8 @@ else
     exit 1
 fi
 
-REGION=${GOVC_DC}-${GOVC_CLUSTER}
-
+#REGION=${GOVC_DC}-${GOVC_CLUSTER}
+REGION=${GOVC_CLUSTER}
 echo "create tags"
 # create region tags
 TESTREGION=$(govc tags.category.ls |grep k8s-region)
