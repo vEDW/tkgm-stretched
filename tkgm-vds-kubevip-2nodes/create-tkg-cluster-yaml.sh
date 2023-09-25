@@ -176,7 +176,7 @@ then
 
     select POLICY in $POLICIES; do 
         echo "Storage Policy selected : $POLICY"
-        VSPHERE_STORAGE_POLICY_ID=$POLICY
+        VSPHERE_STORAGE_POLICY_ID="$POLICY"
         break
     done
 else
@@ -193,6 +193,8 @@ REGION=${GOVC_CLUSTER}
 
 VCSA=$(echo "${GOVC_URL}"| rev | cut -d "/" -f1 | rev)
 
+echo
+echo "Create cluster yaml"
 CLUSTERYAML=$(cat ./tkgm-cluster-template.yaml)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.CLUSTER_NAME = "'${TKGCLUSTERNAME}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_DATACENTER = "'${GOVC_DC}'" ' -)
