@@ -97,6 +97,8 @@ fi
 
 #get FOLDER
 echo
+IFS='
+'
 FOLDERS=$(govc ls -dc="${GOVC_DC}" -t Folder -json=true vm |jq .elements[].Path)
 if [ $? -eq 0 ]
 then
@@ -114,6 +116,7 @@ else
     echo "problem getting folders list via govc" >&2
     exit 1
 fi
+UNSET IFS
 
 #get Portgroups
 echo
