@@ -36,6 +36,7 @@ else
     echo "problem getting datacenters list via govc" >&2
     exit 1
 fi
+VSPHERE_DATACENTER="/$GOVC_DC"
 
 #get cluster
 echo
@@ -77,7 +78,7 @@ fi
 
 #get ResourcePool
 echo
-RESOURCEPOOLS=$(govc find -dc="${GOVC_DC}" -type ResourcePool . | rev | cut -d "/" -f1 | rev )
+RESOURCEPOOLS=$(govc find  -type ResourcePool /${GOVC_DC})
 if [ $? -eq 0 ]
 then
     #echo "${RESOURCEPOOLS}"
@@ -216,7 +217,7 @@ echo
 echo "Create cluster yaml"
 CLUSTERYAML=$(cat ./tkgm-cluster-template.yaml)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.CLUSTER_NAME = "'${TKGCLUSTERNAME}'" ' -)
-CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_DATACENTER = "'${GOVC_DC}'" ' -)
+CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_DATACENTER = "'${VSPHERE_DATACENTER}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_SERVER = "'${VCSA}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_DATASTORE = "'${DATASTORE}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_FOLDER = "'"${VMFOLDER}"'" ' -)
@@ -230,3 +231,4 @@ CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_STORAGE_POLICY_ID = "'"${VS
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_TEMPLATE = "'"${VSPHERE_TEMPLATE}"'" ' -)
 
 echo "${CLUSTERYAML}" > ${TKGCLUSTERNAME}.yaml
+yq e ./${TKGCLUSTERNAME}.yaml
