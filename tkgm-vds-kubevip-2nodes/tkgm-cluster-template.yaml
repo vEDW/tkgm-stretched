@@ -1,0 +1,49 @@
+#! ---------------------------------------------------------------------
+#! vSphere non proxy env configs
+#! ---------------------------------------------------------------------
+CLUSTER_CIDR: 100.96.0.0/11
+CLUSTER_NAME: tkg-cluster-name
+CLUSTER_PLAN: prod
+ENABLE_CEIP_PARTICIPATION: false
+ENABLE_MHC: 'true'
+MHC_UNKNOWN_STATUS_TIMEOUT: 5m
+MHC_FALSE_STATUS_TIMEOUT: 12m
+INFRASTRUCTURE_PROVIDER: vsphere
+SERVICE_CIDR: 100.64.0.0/13
+DEPLOY_TKG_ON_VSPHERE7: 'true'
+VSPHERE_DATACENTER: /datacenter
+VSPHERE_DATASTORE: /datacenter/datastore/DatastoreName
+VSPHERE_FOLDER: /datacenter/vm/tkg-management
+VSPHERE_NETWORK: /datacenter/network/dvs-portgroup
+VSPHERE_PASSWORD: <encoded:base64_enc_pwd>
+VSPHERE_RESOURCE_POOL: /datacenter/host/Cluster/Resources/tkg-rp
+VSPHERE_SERVER: vcsa.fqdn
+VSPHERE_SSH_AUTHORIZED_KEY: ssh-rsa....pub
+
+VSPHERE_TEMPLATE: /datacenter/vm/photon-3-kube-v1.26.5
+VSPHERE_USERNAME: administrator@sso.fqdn
+VSPHERE_INSECURE: 'true'
+ENABLE_AUDIT_LOGGING: 'true'
+OS_ARCH: amd64
+OS_NAME: photon
+OS_VERSION: 3
+
+VSPHERE_CONTROL_PLANE_ENDPOINT: "10.150.1.5"
+
+WORKER_SIZE: small
+CONTROLPLANE_SIZE: small
+
+IDENTITY_MANAGEMENT_TYPE: none
+# VSAN Default Storage Policy
+VSPHERE_STORAGE_POLICY_ID: 'vSAN Default Storage Policy'
+
+#! ---------------------------------------------------------------------
+#! vSphere proxy env configs
+#! ---------------------------------------------------------------------
+
+TKG_HTTP_PROXY_ENABLED: 'false'
+
+
+#! ---------------------------------------------------------------------
+#! vSphere airgapped env configs
+#! ---------------------------------------------------------------------
