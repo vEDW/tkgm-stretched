@@ -153,14 +153,12 @@ VMGROUP02="vm-${ZONE02}"
 # create host groups
 echo "create host groups zone01"
 govc cluster.group.create -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE01} -host
-echo "govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01 | rev | cut -d '/' -f1 | rev"
-HOSTSZONE01=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01 | rev | cut -d "/" -f1 | rev )
+HOSTSZONE01=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE01 | rev | cut -d "/" -f1 | rev )
 govc cluster.group.change -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE01} $HOSTSZONE01 
 
 echo "create host groups zone02"
 govc cluster.group.create -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE02} -host
-echo "govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02 | rev | cut -d '/' -f1 | rev"
-HOSTSZONE02=$(govc find ${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02 | rev | cut -d "/" -f1 | rev )
+HOSTSZONE02=$(govc find /${GOVC_DC}/host/${CLUSTER} -type h |grep $ZONE02 | rev | cut -d "/" -f1 | rev )
 govc cluster.group.change -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${HGZONE02} $HOSTSZONE02 
 
 echo "create vm groups"
