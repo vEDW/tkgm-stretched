@@ -164,6 +164,8 @@ fi
 
 #get VSPHERE_STORAGE_POLICY_ID
 echo
+IFS='
+'
 POLICIES=$(govc storage.policy.ls -json=true | jq -r .Profile[].Name)
 if [ $? -eq 0 ]
 then
@@ -181,6 +183,7 @@ else
     echo "problem getting portgroups list via govc" >&2
     exit 1
 fi
+unset IFS
 
 #REGION=${GOVC_DC}-${GOVC_CLUSTER}
 REGION=${GOVC_CLUSTER}
