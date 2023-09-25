@@ -105,7 +105,7 @@ then
     echo "Select folder where tkg cluster will run or CTRL-C to quit"
     echo
 
-    select FD in $FOLDERS; do 
+    select FD in "$FOLDERS"; do 
         echo "Folder selected : $FD"
         VMFOLDER=$FD
         break
