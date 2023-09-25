@@ -194,7 +194,7 @@ VCSA=$(echo "${GOVC_URL}"| rev | cut -d "/" -f1 | rev)
 
 ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE01}'" ' -)
-ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.region = "'${GOVC_CLUSTER}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.region = "'${REGION}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.az = "'${ZONE01}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${VCSA}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE01}'" ' -)
@@ -203,7 +203,7 @@ echo "${ZONECRD}" > ${CLUSTER}/${ZONE01}-vSphereDeploymentZones.yaml
 
 ZONECRD=$(cat ./vSphereDeploymentZones.yaml)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.name = "'${ZONE02}'" ' -)
-ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.region = "'${GOVC_CLUSTER}'" ' -)
+ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.region = "'${REGION}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.metadata.labels.az = "'${ZONE02}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.server = "'${VCSA}'" ' -)
 ZONECRD=$(echo "${ZONECRD}" | yq e '.spec.failureDomain = "'${ZONE02}'" ' -)
