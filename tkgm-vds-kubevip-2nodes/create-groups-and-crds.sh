@@ -110,6 +110,7 @@ TESTREGION=$(govc tags.category.ls |grep k8s-region)
 if [ "$TESTREGION" == "" ];then
     govc tags.category.create -t ClusterComputeResource k8s-region
 fi
+
 govc tags.create -c k8s-region ${REGION}
 
 # create zone tag category
@@ -121,6 +122,7 @@ govc tags.create -c k8s-zone ${ZONE01}
 govc tags.create -c k8s-zone ${ZONE02}
 
 # attach tag region to cluster
+echo "Attach k8s-region Tag ${REGION} on  /${GOVC_DC}/host/${CLUSTER}"
 govc tags.attach -c k8s-region -dc="${GOVC_DC}" ${REGION} /${GOVC_DC}/host/${CLUSTER}
 
 echo "attach tags to zone01 hosts"
