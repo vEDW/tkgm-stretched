@@ -12,11 +12,6 @@ source ./govc.env
 echo "enter name for new cluster"
 read TKGCLUSTERNAME
 
-#Get KUBEVIPVIP IP
-echo
-echo "enter IP address for new cluster K8S API "
-read VSPHERE_CONTROL_PLANE_ENDPOINT
-
 
 
 #get datacenter
@@ -139,6 +134,18 @@ else
     exit 1
 fi
 
+#Get KUBEVIPVIP IP
+echo
+echo "enter IP address for new cluster K8S API "
+read VSPHERE_CONTROL_PLANE_ENDPOINT
+
+
+#Get KUBEVIPVIP IP
+echo
+echo "enter IP range for kubevip ipam (format example : 10.1.2.x-10.1.2.y) "
+read KUBEVIP_LOADBALANCER_IP_RANGES
+
+
 #setting same password as for GOVC
 ENCPWD=$(echo "${GOVC_PASSWORD}"|base64)
 VSPHERE_PASSWORD="<encoded:${ENCPWD}>"
@@ -205,6 +212,64 @@ else
     exit 1
 fi
 
+# get region tag
+echo
+REGIONS=$(govc find /$GOVC_DC  -type c | xargs -n1 govc tags.attached.ls -r)
+if [ $? -eq 0 ]
+then
+    echo
+    echo "Select Region for tkg cluster or CTRL-C to quit"
+    echo
+
+    select REGION in $REGIONS; do 
+        echo "Region selected : $REGION"
+        VSPHERE_REGION="region=$REGION"
+        break
+    done
+else
+    echo "problem getting zones list via govc" >&2
+    exit 1
+fi
+
+# get zones 01
+echo
+ZONES=$(govc find /$GOVC_DC  -type h | xargs -n1 govc tags.attached.ls -r)
+if [ $? -eq 0 ]
+then
+    echo
+    echo "Select zone 01 for tkg cluster or CTRL-C to quit"
+    echo
+
+    select ZONE in $ZONES; do 
+        echo "Zone 01 selected : $ZONE"
+        VSPHERE_AZ_0=$ZONE
+        break
+    done
+else
+    echo "problem getting zones list via govc" >&2
+    exit 1
+fi
+
+# get zones 02
+echo
+ZONES=$(govc find /$GOVC_DC  -type h | xargs -n1 govc tags.attached.ls -r)
+if [ $? -eq 0 ]
+then
+    echo
+    echo "Select zone 02 for tkg cluster or CTRL-C to quit"
+    echo
+
+    select ZONE in $ZONES; do 
+        echo "Zone 02 selected : $ZONE"
+        VSPHERE_AZ_1=$ZONE
+        break
+    done
+else
+    echo "problem getting zones list via govc" >&2
+    exit 1
+fi
+
+
 #REGION=${GOVC_DC}-${GOVC_CLUSTER}
 REGION=${GOVC_CLUSTER}
 
@@ -227,8 +292,15 @@ CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_SSH_AUTHORIZED_KEY = "'"${V
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_USERNAME = "'${GOVC_USERNAME}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_PASSWORD = "'${VSPHERE_PASSWORD}'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_CONTROL_PLANE_ENDPOINT = "'${VSPHERE_CONTROL_PLANE_ENDPOINT}'" ' -)
+
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_STORAGE_POLICY_ID = "'"${VSPHERE_STORAGE_POLICY_ID}"'" ' -)
 CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_TEMPLATE = "'"${VSPHERE_TEMPLATE}"'" ' -)
 
+CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_REGION = "'"${VSPHERE_REGION}"'" ' -)
+CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_AZ_0 = "'"${VSPHERE_AZ_0}"'" ' -)
+CLUSTERYAML=$(echo "${CLUSTERYAML}" | yq e '.VSPHERE_AZ_1 = "'"${VSPHERE_AZ_1}"'" ' -)
+
 echo "${CLUSTERYAML}" > ${TKGCLUSTERNAME}.yaml
+clear
+
 yq e ./${TKGCLUSTERNAME}.yaml
