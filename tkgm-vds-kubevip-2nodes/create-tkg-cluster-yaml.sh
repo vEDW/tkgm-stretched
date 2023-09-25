@@ -97,7 +97,7 @@ fi
 
 #get FOLDER
 echo
-FOLDERS=$(govc ls -dc="${GOVC_DC}" -type Folder vm)
+FOLDERS=$(govc ls -dc="${GOVC_DC}" -t Folder vm)
 if [ $? -eq 0 ]
 then
     echo "${FOLDERS}"
