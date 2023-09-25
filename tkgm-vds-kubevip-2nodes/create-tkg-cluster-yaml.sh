@@ -60,7 +60,7 @@ echo
 DATASTORES=$(govc ls -dc="${GOVC_DC}" datastore )
 if [ $? -eq 0 ]
 then
-    echo "${DATASTORES}"
+    #echo "${DATASTORES}"
     echo
     echo "Select datastore where tkg cluster will run or CTRL-C to quit"
     echo
@@ -80,7 +80,7 @@ echo
 RESOURCEPOOLS=$(govc find -dc="${GOVC_DC}" -type ResourcePool . | rev | cut -d "/" -f1 | rev )
 if [ $? -eq 0 ]
 then
-    echo "${RESOURCEPOOLS}"
+    #echo "${RESOURCEPOOLS}"
     echo
     echo "Select resourcepool where tkg cluster will run or CTRL-C to quit"
     echo
@@ -97,15 +97,15 @@ fi
 
 #get FOLDER
 echo
-FOLDERS=$(govc ls -dc="${GOVC_DC}" -t Folder vm)
+FOLDERS+=$(govc ls -dc="${GOVC_DC}" -t Folder vm)
 if [ $? -eq 0 ]
 then
-    echo "${FOLDERS}"
+    #echo "${FOLDERS}"
     echo
     echo "Select folder where tkg cluster will run or CTRL-C to quit"
     echo
 
-    select FD in "$FOLDERS"; do 
+    select FD in "${FOLDERS[@]}"; do 
         echo "Folder selected : $FD"
         VMFOLDER=$FD
         break
@@ -120,7 +120,7 @@ echo
 NETWORKS=$(govc ls -dc="${GOVC_DC}" -type DistributedVirtualPortgroup network)
 if [ $? -eq 0 ]
 then
-    echo "${NETWORKS}"
+    #echo "${NETWORKS}"
     echo
     echo "Select portgroup where tkg cluster will run or CTRL-C to quit"
     echo
@@ -144,7 +144,7 @@ echo
 PUBKEYS=$(ls  ~/.ssh/*.pub)
 if [ $? -eq 0 ]
 then
-    echo "${PUBKEYS}"
+    #echo "${PUBKEYS}"
     echo
     echo "Select ssh key to use for tkg cluster or CTRL-C to quit"
     echo
@@ -164,7 +164,7 @@ echo
 POLICIES=$(govc storage.policy.ls -json=true | jq -r .Profile[].Name)
 if [ $? -eq 0 ]
 then
-    echo "${POLICIES}"
+    #echo "${POLICIES}"
     echo
     echo "Select storage policy for tkg cluster or CTRL-C to quit"
     echo
