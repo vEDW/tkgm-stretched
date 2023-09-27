@@ -168,8 +168,8 @@ govc cluster.group.create -dc="${GOVC_DC}" -cluster=${CLUSTER} -name=${VMGROUP02
 
 # create vm group to host group affinity "should" rules
 echo "create affinity rules"
-govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -name ${VMGROUP01}-${HGZONE01} -vm-host -vm-group ${VMGROUP01} -host-affine-group ${HGZONE01}
-govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -name ${VMGROUP02}-${HGZONE02} -vm-host -vm-group ${VMGROUP02} -host-affine-group ${HGZONE02}
+govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -mandatory=false -name ${VMGROUP01}-${HGZONE01} -vm-host -vm-group ${VMGROUP01} -host-affine-group ${HGZONE01}
+govc cluster.rule.create -dc="${GOVC_DC}" -enable -cluster=${CLUSTER} -mandatory=false -name ${VMGROUP02}-${HGZONE02} -vm-host -vm-group ${VMGROUP02} -host-affine-group ${HGZONE02}
 
 
 # check tags and rules
